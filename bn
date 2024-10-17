@@ -1,0 +1,50 @@
+#!/bin/bash
+
+#Unfinished version of bash script (bn)
+
+#local usage function
+usage(){
+    echo "bn <year> <assigned gender f|F|m|M|b|B>"
+    exit 1
+}
+
+#local help function
+help(){
+    echo "output help messages ..."
+    exit 0
+}
+
+birthYear=$1
+birthGender=$2
+dataFile="us_baby_names/yob${birthYear}.txt"
+
+if [[ $# -gt 2 || $# -lt 2 ]]
+then
+    usage
+fi
+
+if [[ $birthYear =~ ^[0-9]{4}$ ]] 
+then
+    true
+else
+    echo "Badly formatted year: $birthYear"
+    usage
+fi
+
+if [[ $birthGender =~ ^[FfMmBb]$ ]] 
+then
+    true
+else
+    echo "Badly formatted assigned gender: $birthGender"
+    usage
+fi
+
+
+if [[ -f $dataFile ]]
+then
+    true
+else
+    usage
+fi
+
+echo "Processing data for year $birthYear and gender $birthGender..."
