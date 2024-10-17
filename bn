@@ -47,4 +47,23 @@ else
     usage
 fi
 
-echo "Processing data for year $birthYear and gender $birthGender..."
+#add gender categorization
+#add both gender option
+#finish rank function
+rank(){
+    local name=$1
+    if [[ $name =~ ^[A-Za-z]+ ]]
+    then
+        echo "$birthYear: $name ranked $(cat $dataFile | grep -P -i "^[A-Z]+,$birthGender,[0-9]+" | grep -n -P -i -w "$name,[mMfFbB],[0-9]+" | grep -P -o "^[0-9]+") out of $(cat $dataFile | grep -P -i "^[A-Z]+,$birthGender,[0-9]+" | wc -l) names."
+    else
+        echo "Badly formatted name: $name"
+    fi
+}
+
+while read line
+do
+    for allNames in $line
+    do
+        rank $allNames
+    done
+done
