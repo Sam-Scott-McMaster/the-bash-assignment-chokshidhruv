@@ -1,18 +1,31 @@
 #!/bin/bash
 
-#Unfinished version of bash script (bn)
-
 #local usage function
 usage(){
-    echo "bn <year> <assigned gender f|F|m|M|b|B>"
-    exit 1
+    echo "bn <year> <assigned gender f|F|m|M|b|B>" >&2
 }
 
 #local help function
 help(){
-    echo "output help messages ..."
-    exit 0
+    echo "bn - Baby Names Utility"
+    echo "Version 1.0.0"
+    echo "Search for rankings of baby names by year and gender."
+    echo "Usage: bn <year> <assigned gender: f|F|m|M|b|B>"
+    echo "--help,       display this help and exits"
+    echo "Options:"
+    echo "year          A four-digit year"
+    echo "gender        'f/F' or 'm/M' for female or male, 'b/B' for both"
+    echo "Examples: "
+    echo "bn 1969 M"
+    echo "Bob JEFF      Outputs the ranking for Bob in gender Male and JEFF in gender Male."
+    echo "bn 1969 F"
+    echo "Bob JEFF      Outputs the ranking for Bob in gender Female and JEFF in gender Female - if name does not exist, it says it doesn't exist."
 }
+
+if [[ $1 = "--help" ]]
+then
+    help
+fi
 
 birthYear=$1
 birthGender=$2
@@ -21,22 +34,25 @@ dataFile="us_baby_names/yob${birthYear}.txt"
 if [[ $# -gt 2 || $# -lt 2 ]]
 then
     usage
+    exit 1;
 fi
 
 if [[ $birthYear =~ ^[0-9]{4}$ ]] 
 then
     true
 else
-    echo "Badly formatted year: $birthYear"
+    echo "Badly formatted year: $birthYear" >&2
     usage
+    exit 2;
 fi
 
 if [[ $birthGender =~ ^[FfMmBb]$ ]] 
 then
     true
 else
-    echo "Badly formatted assigned gender: $birthGender"
+    echo "Badly formatted assigned gender: $birthGender" >&2
     usage
+    exit 2;
 fi
 
 
@@ -44,7 +60,8 @@ if [[ -f $dataFile ]]
 then
     true
 else
-    usage
+    echo "No data for $birthYear"
+    exit 4;
 fi
 
 #local rank function
@@ -89,6 +106,7 @@ rank(){
         fi
     else
         echo "Badly formatted name: $name"
+        exit 3;
     fi
 }
 
