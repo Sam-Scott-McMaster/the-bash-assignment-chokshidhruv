@@ -19,7 +19,7 @@ help(){
     echo "bn 1969 M"
     echo "Bob JEFF      Outputs the ranking for Bob in gender Male and JEFF in gender Male."
     echo "bn 1969 F"
-    echo "Bob JEFF      Outputs the ranking for Bob in gender Female and JEFF in gender Female - if name does not exist, it says it doesn't exist."
+    echo "Bob JEFF      Outputs the ranking for Bob in gender Female and JEFF in gender Female - if name does not exist, it outputs, doesn't exist."
 }
 
 if [[ $1 = "--help" ]]
