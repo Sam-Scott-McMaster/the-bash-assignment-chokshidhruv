@@ -8,7 +8,7 @@
 # 
 # The script reads the baby name data from available file and returns the rank of names to stdout given a specific year and gender. 
 # It also handles errors for invalid inputs and sends it to stderr.
-# The script searches names by male (m,M), female (f,F) or both (b,B).
+# The script searches names by male (m,M), female (f,F) or both (b,B) genders.
 #
 # Format:
 #     Each baby name file is named as yob<year>.txt and contains entries in 
