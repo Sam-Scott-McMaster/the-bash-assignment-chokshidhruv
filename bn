@@ -2,7 +2,7 @@
 
 #local usage function
 usage(){
-    echo "bn <year> <assigned gender f|F|m|M|b|B>" >&2
+    echo "bn <year> <assigned gender: f|F|m|M|b|B>" >&2
 }
 
 #local help function
@@ -60,52 +60,104 @@ if [[ -f $dataFile ]]
 then
     true
 else
-    echo "No data for $birthYear"
+    echo "No data for $birthYear" >&2
     exit 4;
 fi
 
 #local rank function
+# rank(){
+#     local name=$1
+
+#     if [[ $name =~ ^[A-Za-z]+$ ]]
+#     then
+#         if [[ $birthGender = "M" || $birthGender = "m" ]]
+#         then
+#             if [[ $(cat $dataFile | grep -P -i "^[A-Z]+,M,[0-9]+" | grep -n -P -i -w "$name,M,[0-9]+" | grep -P -o "^[0-9]+") = "" ]]
+#             then
+#                 echo "$birthYear: $name not found among the male names."
+#             else
+#                 echo "$birthYear: $name ranked $(cat $dataFile | grep -P -i "^[A-Z]+,M,[0-9]+" | grep -n -P -i -w "$name,M,[0-9]+" | grep -P -o "^[0-9]+") out of $(cat $dataFile | grep -P -i "^[A-Z]+,M,[0-9]+" | wc -l) male names."
+#             fi
+#         elif [[ $birthGender = "F" || $birthGender = "f" ]]
+#         then
+#             if [[ $(cat $dataFile | grep -P -i "^[A-Z]+,F,[0-9]+" | grep -n -P -i -w "$name,F,[0-9]+" | grep -P -o "^[0-9]+") = "" ]]
+#             then
+#                 echo "$birthYear: $name not found among the female names."
+#             else
+#                 echo "$birthYear: $name ranked $(cat $dataFile | grep -P -i "^[A-Z]+,F,[0-9]+" | grep -n -P -i -w "$name,F,[0-9]+" | grep -P -o "^[0-9]+") out of $(cat $dataFile | grep -P -i "^[A-Z]+,F,[0-9]+" | wc -l) female names."
+#             fi
+#         else
+#             if [[ $(cat $dataFile | grep -P -i "^[A-Z]+,M,[0-9]+" | grep -n -P -i -w "$name,M,[0-9]+" | grep -P -o "^[0-9]+") = "" && $(cat $dataFile | grep -P -i "^[A-Z]+,F,[0-9]+" | grep -n -P -i -w "$name,F,[0-9]+" | grep -P -o "^[0-9]+") = "" ]]
+#             then
+#                 echo "$birthYear: $name not found among male names"
+#                 echo "$birthYear: $name not found among female names"
+#             elif [[ $(cat $dataFile | grep -P -i "^[A-Z]+,M,[0-9]+" | grep -n -P -i -w "$name,M,[0-9]+" | grep -P -o "^[0-9]+") = "" ]]
+#             then
+#                 echo "$birthYear: $name not found among the male names."
+#                 echo "$birthYear: $name ranked $(cat $dataFile | grep -P -i "^[A-Z]+,F,[0-9]+" | grep -n -P -i -w "$name,F,[0-9]+" | grep -P -o "^[0-9]+") out of $(cat $dataFile | grep -P -i "^[A-Z]+,F,[0-9]+" | wc -l) female names."
+#             elif [[ $(cat $dataFile | grep -P -i "^[A-Z]+,F,[0-9]+" | grep -n -P -i -w "$name,F,[0-9]+" | grep -P -o "^[0-9]+") = "" ]]
+#             then
+#                 echo "$birthYear: $name ranked $(cat $dataFile | grep -P -i "^[A-Z]+,M,[0-9]+" | grep -n -P -i -w "$name,M,[0-9]+" | grep -P -o "^[0-9]+") out of $(cat $dataFile | grep -P -i "^[A-Z]+,M,[0-9]+" | wc -l) male names."
+#                 echo "$birthYear: $name not found among the female names."
+#             else
+#                 echo "$birthYear: $name ranked $(cat $dataFile | grep -P -i "^[A-Z]+,M,[0-9]+" | grep -n -P -i -w "$name,M,[0-9]+" | grep -P -o "^[0-9]+") out of $(cat $dataFile | grep -P -i "^[A-Z]+,M,[0-9]+" | wc -l) male names."
+#                 echo "$birthYear: $name ranked $(cat $dataFile | grep -P -i "^[A-Z]+,F,[0-9]+" | grep -n -P -i -w "$name,F,[0-9]+" | grep -P -o "^[0-9]+") out of $(cat $dataFile | grep -P -i "^[A-Z]+,F,[0-9]+" | wc -l) female names."
+#             fi
+#         fi
+#     else
+#         echo "Badly formatted name: $name" >&2
+#         exit 3;
+#     fi
+# }
+
 rank(){
     local name=$1
+    local searchName=$(cat $dataFile | grep -P -i "^[A-Z]+,${birthGender},[0-9]+" | grep -n -P -i -w "$name,${birthGender},[0-9]+" | grep -P -o "^[0-9]+")
+    local totalNames=$(cat $dataFile | grep -P -i "^[A-Z]+,${birthGender},[0-9]+" | wc -l)
 
-    if [[ $name =~ ^[A-Za-z]+ ]]
+    local searchNameMale=$(cat "$dataFile" | grep -P -i "^[A-Z]+,M,[0-9]+" | grep -n -P -i -w "$name,M,[0-9]+" | grep -P -o "^[0-9]+")
+    local totalMale=$(cat "$dataFile" | grep -P -i "^[A-Z]+,M,[0-9]+" | wc -l)
+    local searchNameFemale=$(cat "$dataFile" | grep -P -i "^[A-Z]+,F,[0-9]+" | grep -n -P -i -w "$name,F,[0-9]+" | grep -P -o "^[0-9]+")
+    local totalFemale=$(cat "$dataFile" | grep -P -i "^[A-Z]+,F,[0-9]+" | wc -l)
+
+    if [[ $name =~ ^[A-Za-z]+$ ]]
     then
         if [[ $birthGender = "M" || $birthGender = "m" ]]
         then
-            if [[ $(cat $dataFile | grep -P -i "^[A-Z]+,M,[0-9]+" | grep -n -P -i -w "$name,M,[0-9]+" | grep -P -o "^[0-9]+") = "" ]]
+            if [[ $searchName = "" ]]
             then
                 echo "$birthYear: $name not found among the male names."
             else
-                echo "$birthYear: $name ranked $(cat $dataFile | grep -P -i "^[A-Z]+,M,[0-9]+" | grep -n -P -i -w "$name,M,[0-9]+" | grep -P -o "^[0-9]+") out of $(cat $dataFile | grep -P -i "^[A-Z]+,M,[0-9]+" | wc -l) male names."
+                echo "$birthYear: $name ranked $searchName out of $totalNames male names."
             fi
         elif [[ $birthGender = "F" || $birthGender = "f" ]]
         then
-            if [[ $(cat $dataFile | grep -P -i "^[A-Z]+,F,[0-9]+" | grep -n -P -i -w "$name,F,[0-9]+" | grep -P -o "^[0-9]+") = "" ]]
+            if [[ $searchName = "" ]]
             then
                 echo "$birthYear: $name not found among the female names."
             else
-                echo "$birthYear: $name ranked $(cat $dataFile | grep -P -i "^[A-Z]+,F,[0-9]+" | grep -n -P -i -w "$name,F,[0-9]+" | grep -P -o "^[0-9]+") out of $(cat $dataFile | grep -P -i "^[A-Z]+,F,[0-9]+" | wc -l) female names."
+                echo "$birthYear: $name ranked $searchName out of $totalNames female names."
             fi
         else
-            if [[ $(cat $dataFile | grep -P -i "^[A-Z]+,M,[0-9]+" | grep -n -P -i -w "$name,M,[0-9]+" | grep -P -o "^[0-9]+") = "" && $(cat $dataFile | grep -P -i "^[A-Z]+,F,[0-9]+" | grep -n -P -i -w "$name,F,[0-9]+" | grep -P -o "^[0-9]+") = "" ]]
-            then
-                echo "$birthYear: $name not found among male names"
-                echo "$birthYear: $name not found among female names"
-            elif [[ $(cat $dataFile | grep -P -i "^[A-Z]+,M,[0-9]+" | grep -n -P -i -w "$name,M,[0-9]+" | grep -P -o "^[0-9]+") = "" ]]
+            if [[ $searchNameMale = "" && $searchNameFemale = "" ]]
             then
                 echo "$birthYear: $name not found among the male names."
-                echo "$birthYear: $name ranked $(cat $dataFile | grep -P -i "^[A-Z]+,F,[0-9]+" | grep -n -P -i -w "$name,F,[0-9]+" | grep -P -o "^[0-9]+") out of $(cat $dataFile | grep -P -i "^[A-Z]+,F,[0-9]+" | wc -l) female names."
-            elif [[ $(cat $dataFile | grep -P -i "^[A-Z]+,F,[0-9]+" | grep -n -P -i -w "$name,F,[0-9]+" | grep -P -o "^[0-9]+") = "" ]]
+                echo "$birthYear: $name not found among the female names."
+            elif [[ $searchNameMale = "" ]]
             then
-                echo "$birthYear: $name ranked $(cat $dataFile | grep -P -i "^[A-Z]+,M,[0-9]+" | grep -n -P -i -w "$name,M,[0-9]+" | grep -P -o "^[0-9]+") out of $(cat $dataFile | grep -P -i "^[A-Z]+,M,[0-9]+" | wc -l) male names."
+                echo "$birthYear: $name not found among the male names."
+                echo "$birthYear: $name ranked $searchNameFemale out of $totalFemale female names."
+            elif [[ $searchNameFemale = "" ]]
+            then
+                echo "$birthYear: $name ranked $searchNameMale out of $totalMale male names."
                 echo "$birthYear: $name not found among the female names."
             else
-                echo "$birthYear: $name ranked $(cat $dataFile | grep -P -i "^[A-Z]+,M,[0-9]+" | grep -n -P -i -w "$name,M,[0-9]+" | grep -P -o "^[0-9]+") out of $(cat $dataFile | grep -P -i "^[A-Z]+,M,[0-9]+" | wc -l) male names."
-                echo "$birthYear: $name ranked $(cat $dataFile | grep -P -i "^[A-Z]+,F,[0-9]+" | grep -n -P -i -w "$name,F,[0-9]+" | grep -P -o "^[0-9]+") out of $(cat $dataFile | grep -P -i "^[A-Z]+,F,[0-9]+" | wc -l) female names."
+                echo "$birthYear: $name ranked $searchNameMale out of $totalMale male names."
+                echo "$birthYear: $name ranked $searchNameFemale out of $totalFemale female names."
             fi
         fi
     else
-        echo "Badly formatted name: $name"
+        echo "Badly formatted name: $name" >&2
         exit 3;
     fi
 }
